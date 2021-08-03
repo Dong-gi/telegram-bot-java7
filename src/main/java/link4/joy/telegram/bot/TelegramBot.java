@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import link4.joy.telegram.bot.req.*;
 import link4.joy.telegram.bot.res.*;
+import link4.joy.telegram.bot.type.*;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,13 +16,19 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class TelegramBot {
+    private final Map<String, Set<TelegramBotCommand>> commands = new HashMap<>();
     private final String token;
     private final ThreadLocal<ObjectMapper> mapperHolder = new ThreadLocal<ObjectMapper>() {
         @Override
@@ -29,8 +37,41 @@ public final class TelegramBot {
         }
     };
 
+    private TelegramBotCommand defaultCommand;
+    private long updateOffset = 0;
+
     public TelegramBot(String token) {
         this.token = token;
+    }
+
+    public boolean addCommand(String key, TelegramBotCommand command) {
+        if (commands.containsKey(key) == false)
+            commands.put(key, new HashSet<TelegramBotCommand>());
+        return commands.get(key).add(command);
+    }
+
+    public Set<TelegramBotCommand> removeCommand(String key) {
+        return commands.remove(key);
+    }
+
+    public boolean removeCommand(TelegramBotCommand command) {
+        boolean result = false;
+        for (Set<TelegramBotCommand> set : commands.values())
+            result = set.remove(command) || result;
+        return result;
+    }
+
+    public boolean removeCommand(String key, TelegramBotCommand command) {
+        Set<TelegramBotCommand> set = commands.get(key);
+        if (set == null)
+            return false;
+        return set.remove(command);
+    }
+
+    public TelegramBotCommand setDefault(TelegramBotCommand command) {
+        TelegramBotCommand old = defaultCommand;
+        defaultCommand = command;
+        return old;
     }
 
     private String getRequestUrl(String method) {
@@ -145,22 +186,46 @@ public final class TelegramBot {
         }
     }
 
-    public GetUpdatesResponse getUpdates() throws IOException {
-        return doGet("getUpdates", null, GetUpdatesResponse.class);
+    public List<BaseResponse> processLastUpdate() throws IOException {
+        GetUpdatesResponse res1 = getUpdates();
+        if (res1.ok && res1.result != null && res1.result.length > 0) {
+            Update update = res1.result[res1.result.length - 1];
+            Set<TelegramBotCommand> set = commands.get(update.message.text.contains(" ")
+                    ? update.message.text.substring(0, update.message.text.indexOf(' '))
+                    : update.message.text);
+
+            if (set == null || set.isEmpty()) {
+                if (defaultCommand == null)
+                    return Arrays.asList(BaseResponse.NO_HANDLER);
+                return Arrays.asList(defaultCommand.process(this, update));
+            }
+            List<BaseResponse> res2 = new ArrayList<>();
+            for (TelegramBotCommand command : set)
+                res2.add(command.process(this, update));
+            return res2;
+        } else
+            return Arrays.asList(BaseResponse.NOTHING_TO_DO);
     }
 
-    public GetUpdatesResponse getUpdates(int offset) throws IOException {
+    public GetUpdatesResponse getUpdates() throws IOException {
+        return getUpdates(updateOffset);
+    }
+
+    public GetUpdatesResponse getUpdates(long offset) throws IOException {
         Map<String, Object> query = new HashMap<>();
         query.put("offset", offset);
-        return doGet("getUpdates", query, GetUpdatesResponse.class);
+        GetUpdatesResponse res = doGet("getUpdates", query, GetUpdatesResponse.class);
+        if (res.ok && res.result != null && res.result.length > 0)
+            updateOffset = res.result[res.result.length - 1].update_id + 1;
+        return res;
     }
 
     public SendMessageResponse sendMessage(SendMessageRequest req) throws IOException {
         return doPostJson("sendMessage", mapperHolder.get().writeValueAsString(req), SendMessageResponse.class);
     }
 
-    public void sendPhoto(SendPhotoRequest req) throws IOException {
-        Map<String, Object> fields = new HashMap<String, Object>();
+    public SendMessageResponse sendPhoto(SendPhotoRequest req) throws IOException {
+        Map<String, Object> fields = new HashMap<>();
         fields.put("chat_id", req.chat_id);
         if (req.caption != null)
             fields.put("caption", req.caption);
@@ -172,6 +237,10 @@ public final class TelegramBot {
             fields.put("allow_sending_without_reply", req.allow_sending_without_reply);
         if (req.reply_markup != null)
             fields.put("reply_markup", req.reply_markup);
-        doPostForm("sendPhoto", fields, "photo", req.photo, BaseResponse.class);
+        return doPostForm("sendPhoto", fields, "photo", req.photo, SendMessageResponse.class);
+    }
+
+    public BaseResponse setMyCommands(SetMyCommandsRequest req) throws IOException {
+        return doPostJson("setMyCommands", mapperHolder.get().writeValueAsString(req), BaseResponse.class);
     }
 }
