@@ -1,5 +1,6 @@
 package link4.joy.telegram.bot.res;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -16,7 +17,8 @@ public class BaseResponse {
     public BaseResponse() {
     }
 
-    public BaseResponse(boolean ok, String description) {
+    @JsonCreator
+    public BaseResponse(@JsonProperty("ok") boolean ok, @JsonProperty("description") String description) {
         this.ok = ok;
         this.description = description;
     }

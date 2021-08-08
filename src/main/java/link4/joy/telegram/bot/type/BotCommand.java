@@ -1,5 +1,6 @@
 package link4.joy.telegram.bot.type;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,4 +19,13 @@ public class BotCommand {
      */
     @JsonProperty("description")
     public String description;
+
+    public BotCommand() {
+    }
+
+    @JsonCreator
+    public BotCommand(@JsonProperty("command") String command, @JsonProperty("description") String description) {
+        this.command = command;
+        this.description = description;
+    }
 }
