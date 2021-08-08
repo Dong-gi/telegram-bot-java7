@@ -14,8 +14,8 @@ import link4.joy.telegram.bot.type.*;
 
 public class TelegramBotTest {
 
-    private final String token = ""; // insert-your-own-token
-    private final long chatId = 529202433L;
+    private final String token = "";        // insert your own token
+    private final long chatId = 529202433L; // insert your own chat id
 
     @Test
     public void constructorTest() {
