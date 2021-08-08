@@ -216,7 +216,7 @@ public final class TelegramBot {
         query.put("offset", offset);
         GetUpdatesResponse res = doGet("getUpdates", query, GetUpdatesResponse.class);
         if (res.ok && res.result != null && res.result.length > 0)
-            updateOffset = res.result[res.result.length - 1].update_id + 1;
+            updateOffset = res.result[res.result.length - 1].updateId + 1;
         return res;
     }
 
@@ -226,17 +226,17 @@ public final class TelegramBot {
 
     public SendMessageResponse sendPhoto(SendPhotoRequest req) throws IOException {
         Map<String, Object> fields = new HashMap<>();
-        fields.put("chat_id", req.chat_id);
+        fields.put("chat_id", req.chatId);
         if (req.caption != null)
             fields.put("caption", req.caption);
-        if (req.parse_mode != null)
-            fields.put("parse_mode", req.parse_mode);
-        if (req.replay_to_message_id != null)
-            fields.put("replay_to_message_id", req.replay_to_message_id);
-        if (req.allow_sending_without_reply != null)
-            fields.put("allow_sending_without_reply", req.allow_sending_without_reply);
-        if (req.reply_markup != null)
-            fields.put("reply_markup", req.reply_markup);
+        if (req.parseMode != null)
+            fields.put("parse_mode", req.parseMode);
+        if (req.replayToMessageId != null)
+            fields.put("replay_to_message_id", req.replayToMessageId);
+        if (req.allowSendingWithoutReply != null)
+            fields.put("allow_sending_without_reply", req.allowSendingWithoutReply);
+        if (req.replyMarkup != null)
+            fields.put("reply_markup", req.replyMarkup);
         return doPostForm("sendPhoto", fields, "photo", req.photo, SendMessageResponse.class);
     }
 

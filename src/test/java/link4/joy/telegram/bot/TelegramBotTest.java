@@ -35,8 +35,8 @@ public class TelegramBotTest {
     @Test
     public void sendMessageTest1() throws Exception {
         SendMessageRequest req = new SendMessageRequest();
-        req.chat_id = chatId;
-        req.parse_mode = ParseMode.HTML;
+        req.chatId = chatId;
+        req.parseMode = ParseMode.HTML;
         req.text = "<b>Hello World!</b>";
         new TelegramBot(token).sendMessage(req);
     }
@@ -44,18 +44,18 @@ public class TelegramBotTest {
     @Test
     public void sendMessageTest2() throws Exception {
         SendMessageRequest req = new SendMessageRequest();
-        req.chat_id = chatId;
-        req.parse_mode = ParseMode.HTML;
+        req.chatId = chatId;
+        req.parseMode = ParseMode.HTML;
         req.text = "<b>Hello World!</b>";
         ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
-        markup.input_field_placeholder = "test";
-        markup.one_time_keyboard = true;
+        markup.inputFieldPlaceholder = "test";
+        markup.oneTimeKeyboard = true;
         markup.keyboard = new KeyboardButton[1][2];
         markup.keyboard[0][0] = new KeyboardButton();
         markup.keyboard[0][0].text = "button [0][0]";
         markup.keyboard[0][1] = new KeyboardButton();
         markup.keyboard[0][1].text = "button [0][1]";
-        req.reply_markup = markup;
+        req.replyMarkup = markup;
 
         SendMessageResponse res = new TelegramBot(token).sendMessage(req);
         assertTrue(res.ok);
@@ -71,19 +71,19 @@ public class TelegramBotTest {
 
         assertNotEquals(null, photo);
         SendPhotoRequest req = new SendPhotoRequest();
-        req.chat_id = chatId;
-        req.parse_mode = ParseMode.HTML;
+        req.chatId = chatId;
+        req.parseMode = ParseMode.HTML;
         req.caption = "<b>Hello World!</b>";
         req.photo = photo;
         ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
-        markup.input_field_placeholder = "test";
-        markup.one_time_keyboard = true;
+        markup.inputFieldPlaceholder = "test";
+        markup.oneTimeKeyboard = true;
         markup.keyboard = new KeyboardButton[1][2];
         markup.keyboard[0][0] = new KeyboardButton();
         markup.keyboard[0][0].text = "button [0][0]";
         markup.keyboard[0][1] = new KeyboardButton();
         markup.keyboard[0][1].text = "button [0][1]";
-        req.reply_markup = markup;
+        req.replyMarkup = markup;
         new TelegramBot(token).sendPhoto(req);
     }
 
@@ -140,7 +140,7 @@ enum TelegramBotCommands implements TelegramBotCommand {
         @Override
         public SendMessageResponse process(TelegramBot bot, Update update) throws IOException {
             SendMessageRequest req = new SendMessageRequest();
-            req.chat_id = update.message.chat.id;
+            req.chatId = update.message.chat.id;
             req.text = key + " >> " + update.message.text;
             return bot.sendMessage(req);
         }
@@ -167,7 +167,7 @@ enum TelegramBotCommands implements TelegramBotCommand {
     @Override
     public SendMessageResponse process(TelegramBot bot, Update update) throws IOException {
         SendMessageRequest req = new SendMessageRequest();
-        req.chat_id = update.message.chat.id;
+        req.chatId = update.message.chat.id;
         req.text = "There's no handler implementation for the message;" + update.message.text;
         return bot.sendMessage(req);
     }

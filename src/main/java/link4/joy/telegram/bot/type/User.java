@@ -3,14 +3,21 @@ package link4.joy.telegram.bot.type;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 public class User {
+    @JsonProperty("id")
     public long id;
-    public boolean is_bot;
-    public String first_name;
-    public String last_name;
+    @JsonProperty("is_bot")
+    public boolean isBot;
+    @JsonProperty("first_name")
+    public String firstName;
+    @JsonProperty("last_name")
+    public String lastName;
+    @JsonProperty("username")
     public String username;
-    public String language_code;
+    @JsonProperty("language_code")
+    public String languageCode;
 }

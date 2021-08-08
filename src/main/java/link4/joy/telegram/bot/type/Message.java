@@ -2,14 +2,20 @@ package link4.joy.telegram.bot.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 public class Message {
-    public long message_id;
+    @JsonProperty("message_id")
+    public long messageId;
+    @JsonProperty("from")
     public User from;
+    @JsonProperty("date")
     public long date;
+    @JsonProperty("chat")
     public Chat chat;
+    @JsonProperty("text")
     public String text;
 }
